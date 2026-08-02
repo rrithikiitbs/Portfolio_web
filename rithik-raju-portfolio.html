@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rithik Raju P — Engineering Systems That Think</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #05060a;
+    --bg-panel: #0a0e17;
+    --bg-panel-hi: #0d1220;
+    --cyan: #00f0ff;
+    --violet: #b026ff;
+    --amber: #ffb800;
+    --text: #e8ecf4;
+    --muted: #7a8299;
+    --line: rgba(255,255,255,0.08);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  ::selection{background:rgba(0,240,255,0.25); color:#fff;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+    position:relative;
+  }
+  a{color:inherit; text-decoration:none;}
+
+  /* ---------- Ambient background ---------- */
+  .bg-grid{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size:48px 48px;
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 20%, black 20%, transparent 75%);
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 20%, black 20%, transparent 75%);
+    animation: gridDrift 40s linear infinite;
+  }
+  @keyframes gridDrift{
+    0%{ background-position: 0 0, 0 0; }
+    100%{ background-position: 48px 96px, 48px 96px; }
+  }
+  .orb{
+    position:fixed; border-radius:50%; filter:blur(90px); z-index:0; pointer-events:none; opacity:0.35;
+  }
+  .orb-1{ width:420px; height:420px; background:var(--cyan); top:-120px; left:-140px; animation: floatA 22s ease-in-out infinite; }
+  .orb-2{ width:480px; height:480px; background:var(--violet); top:30vh; right:-180px; animation: floatB 26s ease-in-out infinite; }
+  .orb-3{ width:360px; height:360px; background:var(--amber); bottom:-160px; left:20vw; opacity:0.18; animation: floatA 30s ease-in-out infinite reverse; }
+  @keyframes floatA{
+    0%,100%{ transform:translate(0,0); }
+    50%{ transform:translate(40px,60px); }
+  }
+  @keyframes floatB{
+    0%,100%{ transform:translate(0,0); }
+    50%{ transform:translate(-50px,40px); }
+  }
+
+  /* ---------- Circuit spine ---------- */
+  .spine-wrap{
+    position:fixed; left:calc(50% - 460px); top:0; bottom:0; width:2px; z-index:1; pointer-events:none;
+  }
+  @media (max-width:1100px){ .spine-wrap{ left:24px; } }
+  @media (max-width:640px){ .spine-wrap{ display:none; } }
+  .spine-line{
+    position:absolute; left:0; top:0; width:2px; height:100%;
+    background:linear-gradient(180deg, transparent 0%, rgba(0,240,255,0.35) 8%, rgba(176,38,255,0.35) 50%, rgba(255,184,0,0.3) 92%, transparent 100%);
+  }
+  .pulse{
+    position:absolute; left:-4px; width:10px; height:10px; border-radius:50%;
+    background:var(--cyan); box-shadow:0 0 12px 4px rgba(0,240,255,0.8), 0 0 30px 10px rgba(0,240,255,0.3);
+    animation: travel 6s linear infinite;
+  }
+  .pulse.p2{ animation-delay:2s; background:var(--violet); box-shadow:0 0 12px 4px rgba(176,38,255,0.8), 0 0 30px 10px rgba(176,38,255,0.3); }
+  .pulse.p3{ animation-delay:4s; background:var(--amber); box-shadow:0 0 12px 4px rgba(255,184,0,0.8), 0 0 30px 10px rgba(255,184,0,0.3); }
+  @keyframes travel{
+    0%{ top:0%; opacity:0;}
+    5%{opacity:1;}
+    95%{opacity:1;}
+    100%{ top:100%; opacity:0;}
+  }
+
+  /* ---------- Nav ---------- */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 48px;
+    backdrop-filter:blur(14px);
+    background:rgba(5,6,10,0.55);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{
+    font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:1.15rem; letter-spacing:0.5px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .logo .dot{ width:8px; height:8px; border-radius:50%; background:var(--cyan); box-shadow:0 0 10px 3px rgba(0,240,255,0.7); }
+  .nav-links{ display:flex; gap:36px; font-family:'JetBrains Mono',monospace; font-size:0.78rem; letter-spacing:0.5px; text-transform:uppercase; }
+  .nav-links a{ color:var(--muted); position:relative; transition:color .25s; }
+  .nav-links a::after{
+    content:''; position:absolute; left:0; bottom:-6px; width:0; height:1px; background:var(--cyan);
+    box-shadow:0 0 8px 1px rgba(0,240,255,0.7); transition:width .25s;
+  }
+  .nav-links a:hover{ color:var(--text); }
+  .nav-links a:hover::after{ width:100%; }
+  .burger{ display:none; }
+  @media (max-width:900px){
+    .nav-links{ display:none; }
+    nav{ padding:18px 24px; }
+  }
+
+  section{ position:relative; z-index:2; padding:140px 48px 100px; max-width:1080px; margin:0 auto; }
+  @media (max-width:900px){ section{ padding:110px 22px 70px; } }
+
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:0.75rem; letter-spacing:2px; text-transform:uppercase;
+    color:var(--cyan); margin-bottom:18px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{ content:''; width:24px; height:1px; background:var(--cyan); box-shadow:0 0 6px rgba(0,240,255,0.7); }
+  .eyebrow.v{ color:var(--violet); } .eyebrow.v::before{ background:var(--violet); box-shadow:0 0 6px rgba(176,38,255,0.7); }
+  .eyebrow.a{ color:var(--amber); } .eyebrow.a::before{ background:var(--amber); box-shadow:0 0 6px rgba(255,184,0,0.7); }
+
+  h2.section-title{
+    font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:clamp(1.8rem,3.4vw,2.6rem);
+    margin-bottom:44px; letter-spacing:0.3px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding-top:80px;
+  }
+  .hero-eyebrow{
+    font-family:'JetBrains Mono',monospace; color:var(--muted); font-size:0.9rem; letter-spacing:1px; margin-bottom:22px;
+  }
+  .hero-eyebrow span{ color:var(--cyan); }
+  h1.hero-name{
+    font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:clamp(2.8rem,8vw,6.2rem);
+    line-height:1.02; letter-spacing:-1px;
+    background:linear-gradient(100deg,#fff 20%, var(--cyan) 45%, var(--violet) 70%, #fff 95%);
+    background-size:300% auto;
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:shine 7s linear infinite;
+    text-shadow:0 0 60px rgba(0,240,255,0.15);
+  }
+  @keyframes shine{ to{ background-position:300% center; } }
+  .hero-role{
+    font-family:'Inter',sans-serif; font-weight:400; font-size:clamp(1.05rem,2vw,1.4rem); color:var(--muted);
+    margin-top:22px; max-width:640px; line-height:1.6;
+  }
+  .hero-role strong{ color:var(--text); font-weight:600; }
+  .hero-ctas{ display:flex; gap:18px; margin-top:44px; flex-wrap:wrap; }
+  .btn{
+    font-family:'JetBrains Mono',monospace; font-size:0.82rem; letter-spacing:0.5px; text-transform:uppercase;
+    padding:14px 28px; border-radius:2px; border:1px solid var(--cyan); color:var(--cyan);
+    background:rgba(0,240,255,0.05); transition:all .3s ease; cursor:pointer; position:relative; overflow:hidden;
+  }
+  .btn:hover{ background:rgba(0,240,255,0.14); box-shadow:0 0 24px rgba(0,240,255,0.35); transform:translateY(-2px); }
+  .btn.solid{ background:var(--cyan); color:#03080a; font-weight:600; }
+  .btn.solid:hover{ box-shadow:0 0 30px rgba(0,240,255,0.6); }
+  .btn.violet{ border-color:var(--violet); color:var(--violet); background:rgba(176,38,255,0.05); }
+  .btn.violet:hover{ background:rgba(176,38,255,0.14); box-shadow:0 0 24px rgba(176,38,255,0.35); }
+
+  .hero-stats{ display:flex; gap:48px; margin-top:70px; flex-wrap:wrap; }
+  .stat{ font-family:'Chakra Petch',sans-serif; }
+  .stat .num{ font-size:2.1rem; font-weight:700; color:var(--text); }
+  .stat .num span{ color:var(--cyan); }
+  .stat .lbl{ font-family:'JetBrains Mono',monospace; font-size:0.68rem; letter-spacing:1px; color:var(--muted); text-transform:uppercase; margin-top:4px; }
+
+  .hero-svg{ position:absolute; top:0; right:-6%; width:56%; height:100%; z-index:-1; opacity:0.85; pointer-events:none; }
+  @media (max-width:900px){ .hero-svg{ display:none; } }
+
+  /* ---------- Reveal ---------- */
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- About ---------- */
+  .about-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:56px; align-items:start; }
+  @media (max-width:800px){ .about-grid{ grid-template-columns:1fr; } }
+  .about-text p{ color:#c3c9d6; line-height:1.85; font-size:1.02rem; margin-bottom:18px; }
+  .about-text strong{ color:var(--text); }
+  .chip-col{ display:flex; flex-direction:column; gap:14px; }
+  .chip{
+    border:1px solid var(--line); background:var(--bg-panel); padding:16px 20px; border-radius:6px;
+    display:flex; justify-content:space-between; align-items:center; transition:border-color .3s, transform .3s;
+  }
+  .chip:hover{ border-color:rgba(0,240,255,0.4); transform:translateX(4px); }
+  .chip .k{ font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+  .chip .v{ font-family:'Chakra Petch',sans-serif; font-weight:600; color:var(--cyan); }
+
+  /* ---------- Timeline / Experience ---------- */
+  .tl-item{
+    position:relative; padding-left:36px; padding-bottom:52px; border-left:1px solid var(--line);
+  }
+  .tl-item:last-child{ padding-bottom:0; }
+  .tl-item::before{
+    content:''; position:absolute; left:-6px; top:2px; width:11px; height:11px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--violet); box-shadow:0 0 14px rgba(176,38,255,0.6);
+  }
+  .tl-role{ font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:1.2rem; color:var(--text); }
+  .tl-org{ font-family:'JetBrains Mono',monospace; font-size:0.82rem; color:var(--violet); margin-top:4px; }
+  .tl-date{ font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--muted); margin-top:2px; }
+  .tl-bullets{ margin-top:16px; display:flex; flex-direction:column; gap:10px; }
+  .tl-bullets li{ list-style:none; color:#c3c9d6; line-height:1.7; font-size:0.96rem; position:relative; padding-left:18px; }
+  .tl-bullets li::before{ content:'▹'; position:absolute; left:0; color:var(--violet); }
+
+  /* ---------- Projects ---------- */
+  .proj-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:26px; }
+  @media (max-width:800px){ .proj-grid{ grid-template-columns:1fr; } }
+  .card{
+    background:linear-gradient(160deg, var(--bg-panel-hi), var(--bg-panel));
+    border:1px solid var(--line); border-radius:10px; padding:30px; position:relative; overflow:hidden;
+    transition:transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+  }
+  .card::before{
+    content:''; position:absolute; inset:0; border-radius:10px; padding:1px;
+    background:linear-gradient(135deg, transparent, rgba(0,240,255,0.35), transparent 60%);
+    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude; opacity:0; transition:opacity .35s;
+  }
+  .card:hover{ transform:translateY(-6px); border-color:rgba(0,240,255,0.35); box-shadow:0 18px 50px -20px rgba(0,240,255,0.35); }
+  .card:hover::before{ opacity:1; }
+  .card.featured{ grid-column:1 / -1; }
+  .card-top{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; gap:12px; }
+  .card-title{ font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:1.3rem; }
+  .card-tag{ font-family:'JetBrains Mono',monospace; font-size:0.68rem; color:var(--amber); border:1px solid rgba(255,184,0,0.4); padding:4px 10px; border-radius:20px; white-space:nowrap; }
+  .card-sub{ font-family:'JetBrains Mono',monospace; font-size:0.76rem; color:var(--muted); margin-bottom:16px; line-height:1.6; }
+  .card-bullets{ display:flex; flex-direction:column; gap:9px; margin-bottom:18px; }
+  .card-bullets li{ list-style:none; color:#c3c9d6; font-size:0.92rem; line-height:1.65; padding-left:16px; position:relative; }
+  .card-bullets li::before{ content:'—'; position:absolute; left:0; color:var(--cyan); }
+  .tech-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tech-pill{ font-family:'JetBrains Mono',monospace; font-size:0.68rem; padding:5px 11px; border-radius:20px; border:1px solid var(--line); color:var(--muted); }
+
+  /* ---------- Patents ---------- */
+  .patent-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:26px; }
+  @media (max-width:800px){ .patent-grid{ grid-template-columns:1fr; } }
+  .patent-card{
+    background:var(--bg-panel); border:1px solid rgba(255,184,0,0.25); border-radius:10px; padding:28px;
+    transition:box-shadow .3s, transform .3s;
+  }
+  .patent-card:hover{ transform:translateY(-4px); box-shadow:0 18px 45px -22px rgba(255,184,0,0.4); }
+  .patent-status{
+    display:inline-flex; align-items:center; gap:8px; font-family:'JetBrains Mono',monospace; font-size:0.68rem;
+    text-transform:uppercase; letter-spacing:1px; color:var(--amber); margin-bottom:14px;
+  }
+  .patent-status .blip{ width:7px; height:7px; border-radius:50%; background:var(--amber); box-shadow:0 0 8px 2px rgba(255,184,0,0.7); animation:blip 1.6s ease-in-out infinite; }
+  @keyframes blip{ 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+  .patent-title{ font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:1.12rem; margin-bottom:10px; }
+  .patent-desc{ color:#c3c9d6; font-size:0.92rem; line-height:1.7; }
+
+  /* ---------- Skills ---------- */
+  .skill-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  @media (max-width:800px){ .skill-grid{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:520px){ .skill-grid{ grid-template-columns:1fr; } }
+  .skill-mod{ background:var(--bg-panel); border:1px solid var(--line); border-radius:8px; padding:22px; }
+  .skill-mod h4{ font-family:'JetBrains Mono',monospace; font-size:0.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--cyan); margin-bottom:14px; }
+  .skill-tags{ display:flex; flex-wrap:wrap; gap:8px; }
+  .skill-tags span{ font-size:0.82rem; padding:6px 12px; border-radius:5px; background:rgba(255,255,255,0.04); border:1px solid var(--line); color:#c3c9d6; transition:all .25s; }
+  .skill-tags span:hover{ border-color:var(--cyan); color:var(--cyan); background:rgba(0,240,255,0.06); }
+
+  /* ---------- Achievements ---------- */
+  .ach-list{ display:flex; flex-direction:column; gap:16px; }
+  .ach-item{ display:flex; gap:18px; align-items:flex-start; padding:16px 0; border-bottom:1px solid var(--line); }
+  .ach-item:last-child{ border-bottom:none; }
+  .ach-mark{ font-family:'Chakra Petch',sans-serif; font-weight:700; color:var(--violet); font-size:1.1rem; min-width:34px; }
+  .ach-body p{ color:#c3c9d6; line-height:1.6; font-size:0.96rem; }
+  .ach-body strong{ color:var(--text); }
+
+  /* ---------- Education ---------- */
+  .edu-grid{ display:grid; grid-template-columns:1fr 1fr; gap:26px; }
+  @media (max-width:800px){ .edu-grid{ grid-template-columns:1fr; } }
+  .edu-card{ background:var(--bg-panel); border:1px solid var(--line); border-radius:10px; padding:28px; }
+  .edu-degree{ font-family:'Chakra Petch',sans-serif; font-weight:600; font-size:1.1rem; margin-bottom:6px; }
+  .edu-school{ font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--cyan); margin-bottom:14px; }
+  .edu-note{ color:var(--muted); font-size:0.9rem; line-height:1.6; }
+
+  /* ---------- Contact / Footer ---------- */
+  .contact{ text-align:center; padding-top:100px; }
+  .contact h2{ font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:clamp(2rem,5vw,3.4rem); margin-bottom:20px; }
+  .contact p{ color:var(--muted); max-width:520px; margin:0 auto 40px; line-height:1.7; }
+  .contact-links{ display:flex; gap:20px; justify-content:center; flex-wrap:wrap; }
+  footer{ text-align:center; padding:40px 24px 60px; font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--muted); position:relative; z-index:2; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="spine-wrap">
+  <div class="spine-line"></div>
+  <div class="pulse"></div>
+  <div class="pulse p2"></div>
+  <div class="pulse p3"></div>
+</div>
+
+<nav>
+  <div class="logo"><span class="dot"></span>RR.P</div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#experience">Experience</a>
+    <a href="#projects">Projects</a>
+    <a href="#patents">Patents</a>
+    <a href="#skills">Skills</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <svg class="hero-svg" viewBox="0 0 600 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path id="cpath1" d="M50 750 L50 500 L200 500 L200 350 L380 350 L380 150 L550 150" stroke="rgba(0,240,255,0.35)" stroke-width="1.5"/>
+    <path id="cpath2" d="M550 700 L400 700 L400 480 L250 480 L250 220 L80 220 L80 40" stroke="rgba(176,38,255,0.3)" stroke-width="1.5"/>
+    <path d="M50 500 L-40 500" stroke="rgba(0,240,255,0.25)" stroke-width="1.5"/>
+    <path d="M380 150 L500 150 L500 30" stroke="rgba(255,184,0,0.25)" stroke-width="1.5"/>
+    <circle cx="200" cy="500" r="4" fill="#00f0ff" opacity="0.6"/>
+    <circle cx="380" cy="350" r="4" fill="#00f0ff" opacity="0.6"/>
+    <circle cx="250" cy="480" r="4" fill="#b026ff" opacity="0.6"/>
+    <circle cx="80" cy="220" r="4" fill="#b026ff" opacity="0.6"/>
+    <circle r="5" fill="#00f0ff">
+      <animateMotion dur="4.5s" repeatCount="indefinite" path="M50 750 L50 500 L200 500 L200 350 L380 350 L380 150 L550 150"/>
+    </circle>
+    <circle r="5" fill="#b026ff">
+      <animateMotion dur="5.5s" repeatCount="indefinite" path="M550 700 L400 700 L400 480 L250 480 L250 220 L80 220 L80 40"/>
+    </circle>
+  </svg>
+
+  <div class="hero-eyebrow">// <span>booting_portfolio.exe</span> — Chennai, India</div>
+  <h1 class="hero-name">RITHIK<br>RAJU P</h1>
+  <p class="hero-role">
+    I engineer <strong>real-time perception systems</strong> where embedded hardware meets AI —
+    from YOLO pipelines reading 6 CCTV streams at once to edge devices sensing danger before humans can.
+    CS + Electronic Systems, dual-degree at <strong>VIT Chennai &amp; IIT Madras</strong>.
+  </p>
+  <div class="hero-ctas">
+    <a class="btn solid" href="#projects">View Projects</a>
+    <a class="btn" href="#experience">Experience</a>
+    <a class="btn violet" href="#contact">Get In Touch</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="num">9.26<span>/10</span></div><div class="lbl">CGPA</div></div>
+    <div class="stat"><div class="num"><span>6</span> streams</div><div class="lbl">Real-time CV pipeline</div></div>
+    <div class="stat"><div class="num"><span>2</span> patents</div><div class="lbl">Pending, edge AI</div></div>
+    <div class="stat"><div class="num"><span>2</span>× 1st place</div><div class="lbl">National hackathons</div></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="eyebrow reveal">01 — About</div>
+  <h2 class="section-title reveal">Built at the intersection of circuits and code</h2>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>I'm a Computer Science &amp; Electronic Systems dual-degree student, spending equal time in embedded validation labs and AI perception pipelines. That combination means I don't just write models — I understand the hardware, sensors, and constraints they eventually have to survive in.</p>
+      <p>My flagship project, <strong>AeroAid</strong>, is a YOLO-based multi-camera crowd safety platform that processes six live CCTV streams simultaneously for autonomous anomaly detection — the same class of problem as multi-sensor fusion in robotics. I've backed that up with two national first-place wins, two pending patents in edge AI and adaptive hydraulic intelligence, and hands-on industry experience validating enterprise Wi-Fi systems at <strong>Zilogic Technologies</strong>.</p>
+      <p>I'm looking for teams building AI systems that have to work in the real world — not just in a notebook.</p>
+    </div>
+    <div class="chip-col reveal">
+      <div class="chip"><span class="k">Location</span><span class="v">Chennai, IN</span></div>
+      <div class="chip"><span class="k">Focus</span><span class="v">AI / CV / Embedded</span></div>
+      <div class="chip"><span class="k">Degree</span><span class="v">VIT + IIT Madras</span></div>
+      <div class="chip"><span class="k">Status</span><span class="v">Open to roles</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="eyebrow v reveal">02 — Experience</div>
+  <h2 class="section-title reveal">Where the work happened</h2>
+
+  <div class="tl-item reveal">
+    <div class="tl-role">Embedded Systems Intern</div>
+    <div class="tl-org">Zilogic Technologies</div>
+    <div class="tl-date">May 2026 – Jun 2026</div>
+    <ul class="tl-bullets">
+      <li>Improved validation coverage of enterprise Wi-Fi access points by 100% across 3 device families, authoring test suites for OpenWrt/Linux covering SSIDs, VLANs, DHCP, and network services.</li>
+      <li>Reduced authentication defect escape rate by systematically validating WPA2/WPA3 and RADIUS workflows across 5+ client configurations under roaming, throughput, and stability conditions.</li>
+      <li>Accelerated defect resolution by delivering structured test reports consumed directly by senior engineering teams.</li>
+    </ul>
+  </div>
+
+  <div class="tl-item reveal">
+    <div class="tl-role">Team Lead</div>
+    <div class="tl-org">Smart India Hackathon 2025</div>
+    <div class="tl-date">2025</div>
+    <ul class="tl-bullets">
+      <li>Delivered a fully integrated autonomous crowd safety system, leading a 6-member team across computer vision, backend, and spatial analytics workstreams.</li>
+      <li>Reduced integration risk by defining system architecture upfront — decoupling YOLO inference, grid analytics, and alerting layers for parallel development.</li>
+    </ul>
+  </div>
+
+  <div class="tl-item reveal">
+    <div class="tl-role">Hackathon Organizer</div>
+    <div class="tl-org">KernelQuest Hackathon 2024</div>
+    <div class="tl-date">2024</div>
+    <ul class="tl-bullets">
+      <li>Coordinated smooth execution of a 200+ participant university hackathon — technical operations, problem-setting, logistics, and judging across multiple concurrent tracks.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="eyebrow reveal">03 — Projects</div>
+  <h2 class="section-title reveal">Things I've shipped</h2>
+  <div class="proj-grid">
+
+    <div class="card featured reveal">
+      <div class="card-top">
+        <div class="card-title">AeroAid — Autonomous Crowd Safety &amp; Perception System</div>
+        <div class="card-tag">Team Lead · SIH 2025</div>
+      </div>
+      <div class="card-sub">Python · OpenCV · YOLO · Node.js · TypeScript</div>
+      <ul class="card-bullets">
+        <li>Real-time person detection across 6 simultaneous CCTV streams at 15+ FPS via a YOLO-based multi-camera perception pipeline with OpenCV motion analysis.</li>
+        <li>Crowd anomaly detection latency under 2 seconds using a grid-based spatial density and directional flow engine.</li>
+        <li>Modular, hardware-agnostic architecture enabling zero-code swap-in of drone feeds alongside fixed CCTV.</li>
+      </ul>
+      <div class="tech-row"><span class="tech-pill">YOLO</span><span class="tech-pill">OpenCV</span><span class="tech-pill">Multi-sensor fusion</span><span class="tech-pill">Real-time inference</span></div>
+    </div>
+
+    <div class="card reveal">
+      <div class="card-top">
+        <div class="card-title">Vectraze</div>
+        <div class="card-tag">4th · IntelliTrace 2026</div>
+      </div>
+      <div class="card-sub">Python · Machine Learning · Graph Analytics</div>
+      <ul class="card-bullets">
+        <li>Identified coordinated mule account clusters with 85%+ precision by modeling transactions as dynamic temporal graphs.</li>
+        <li>Reduced false-positive fraud flags via infrastructure-level risk propagation isolating structural fraud signatures.</li>
+      </ul>
+      <div class="tech-row"><span class="tech-pill">Graph ML</span><span class="tech-pill">Fraud detection</span></div>
+    </div>
+
+    <div class="card reveal">
+      <div class="card-top">
+        <div class="card-title">VitalIQ</div>
+        <div class="card-tag">Personal project</div>
+      </div>
+      <div class="card-sub">Next.js · React · TypeScript · PostgreSQL · Supabase · Grok API</div>
+      <ul class="card-bullets">
+        <li>Cut repeated health query time by 60% via longitudinal memory architecture persisting patient history across sessions.</li>
+        <li>Sub-10-second personalized recommendations via a context-aware prompt pipeline on live health profiles.</li>
+      </ul>
+      <div class="tech-row"><span class="tech-pill">LLM pipeline</span><span class="tech-pill">Supabase</span></div>
+    </div>
+
+    <div class="card reveal">
+      <div class="card-top">
+        <div class="card-title">AuthenID</div>
+        <div class="card-tag">Personal project</div>
+      </div>
+      <div class="card-sub">Next.js · Node.js · Blockchain Concepts · AI Media Detection</div>
+      <ul class="card-bullets">
+        <li>90%+ detection accuracy on AI-generated images via a cryptographic provenance pipeline.</li>
+        <li>Blockchain-backed provenance layer removing single-point-of-failure in content authenticity.</li>
+      </ul>
+      <div class="tech-row"><span class="tech-pill">Media forensics</span><span class="tech-pill">Provenance</span></div>
+    </div>
+
+    <div class="card reveal">
+      <div class="card-top">
+        <div class="card-title">CityFix</div>
+        <div class="card-tag">1st · Veltech Intl.</div>
+      </div>
+      <div class="card-sub">React · GIS · Tableau · Power BI</div>
+      <ul class="card-bullets">
+        <li>Won 1st place among 40+ teams with a geo-tagged civic issue platform automating complaint routing via NLP.</li>
+        <li>Density-weighted maintenance dashboards enabling prioritization across 3 simulated urban zones.</li>
+      </ul>
+      <div class="tech-row"><span class="tech-pill">GIS</span><span class="tech-pill">NLP</span><span class="tech-pill">Dashboards</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PATENTS -->
+<section id="patents">
+  <div class="eyebrow a reveal">04 — Patents</div>
+  <h2 class="section-title reveal">Ideas currently in the pipeline</h2>
+  <div class="patent-grid">
+    <div class="patent-card reveal">
+      <div class="patent-status"><span class="blip"></span>Pending</div>
+      <div class="patent-title">Edge AI Smart Mining Helmet</div>
+      <div class="patent-desc">An edge-AI wearable safety system for GPS-denied underground environments, fusing oxygen sensors, tremor detectors, sonar range-finders, and emergency alerting into a single embedded platform — analogous to autonomous robot safety-stop mechanisms in constrained spaces.</div>
+    </div>
+    <div class="patent-card reveal">
+      <div class="patent-status"><span class="blip"></span>Pending</div>
+      <div class="patent-title">Rain-Gated Adaptive Hydraulic Intelligence System</div>
+      <div class="patent-desc">An AI-driven edge system for real-time stormwater blockage prediction, integrating hydraulic sensors, graph-based anomaly detection, and adaptive control logic — targeting sub-60-second alert latency in field deployments.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="eyebrow reveal">05 — Skills</div>
+  <h2 class="section-title reveal">The toolkit</h2>
+  <div class="skill-grid">
+    <div class="skill-mod reveal"><h4>Languages</h4><div class="skill-tags"><span>Python</span><span>C</span><span>C++</span><span>JavaScript</span><span>TypeScript</span><span>SQL</span><span>R</span></div></div>
+    <div class="skill-mod reveal"><h4>Frameworks &amp; APIs</h4><div class="skill-tags"><span>React</span><span>Next.js</span><span>Node.js</span><span>Express</span><span>REST APIs</span></div></div>
+    <div class="skill-mod reveal"><h4>AI / ML &amp; Vision</h4><div class="skill-tags"><span>OpenCV</span><span>YOLO</span><span>Machine Learning</span><span>NLP</span><span>Graph Analytics</span></div></div>
+    <div class="skill-mod reveal"><h4>Databases</h4><div class="skill-tags"><span>PostgreSQL</span><span>Supabase</span></div></div>
+    <div class="skill-mod reveal"><h4>Embedded &amp; Networking</h4><div class="skill-tags"><span>OpenWrt</span><span>Linux</span><span>Wi-Fi Testing</span><span>MATLAB</span><span>LTSpice</span><span>IoT</span><span>Sensor Fusion</span></div></div>
+    <div class="skill-mod reveal"><h4>Tools</h4><div class="skill-tags"><span>Git</span><span>GitHub</span><span>Tableau</span><span>Power BI</span><span>Figma</span></div></div>
+  </div>
+</section>
+
+<!-- ACHIEVEMENTS -->
+<section id="achievements">
+  <div class="eyebrow v reveal">06 — Achievements</div>
+  <h2 class="section-title reveal">Recognition along the way</h2>
+  <div class="ach-list">
+    <div class="ach-item reveal"><div class="ach-mark">01</div><div class="ach-body"><p><strong>1st Place</strong> — Veltech International Hackathon, CityFix, among 40+ competing teams</p></div></div>
+    <div class="ach-item reveal"><div class="ach-mark">02</div><div class="ach-body"><p><strong>1st Place</strong> — IIT Madras Shaastra, Research on Biodegradable Electronics</p></div></div>
+    <div class="ach-item reveal"><div class="ach-mark">03</div><div class="ach-body"><p><strong>4th Place</strong> — IntelliTrace 2026, PSB Hackathon Series, Indian Bank, Vectraze Fraud Detection Engine</p></div></div>
+    <div class="ach-item reveal"><div class="ach-mark">04</div><div class="ach-body"><p><strong>Team Lead</strong> — Smart India Hackathon 2025, delivered AeroAid end-to-end in 36 hours with a 6-member team</p></div></div>
+    <div class="ach-item reveal"><div class="ach-mark">05</div><div class="ach-body"><p><strong>Active member</strong> — Debate Club &amp; Quiz Club: public speaking, team leadership, technical presentation</p></div></div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="eyebrow reveal">07 — Education</div>
+  <h2 class="section-title reveal">Foundation</h2>
+  <div class="edu-grid">
+    <div class="edu-card reveal">
+      <div class="edu-degree">B.Tech — Computer Science Engineering</div>
+      <div class="edu-school">VIT Chennai · Expected 2028</div>
+      <div class="edu-note">CGPA 9.26/10. Coursework: DSA, Operating Systems, DBMS, Computer Networks, OOP, Machine Learning, Embedded Systems.</div>
+    </div>
+    <div class="edu-card reveal">
+      <div class="edu-degree">B.Sc — Electronic Systems</div>
+      <div class="edu-school">IIT Madras · Dual Degree Program</div>
+      <div class="edu-note">Interdisciplinary program covering electronics, signal processing, control systems, and embedded systems engineering.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="contact">
+  <div class="eyebrow v reveal" style="justify-content:center;">08 — Contact</div>
+  <h2 class="reveal">Let's build something that has to work in the real world.</h2>
+  <p class="reveal">Open to AI engineering, computer vision, and embedded/AI hybrid roles. Reach out — I reply fast.</p>
+  <div class="contact-links reveal">
+    <a class="btn solid" href="mailto:rithikrajuwin07@gmail.com">Email Me</a>
+    <a class="btn" href="https://linkedin.com/in/rithik-raju-p-437572321" target="_blank" rel="noopener">LinkedIn</a>
+    <a class="btn violet" href="https://github.com/rrithikiitbs" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</section>
+
+<footer>© 2026 Rithik Raju P — built with circuits, coffee, and a little bit of neon.</footer>
+
+<script>
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold:0.12 });
+  revealEls.forEach(el=>io.observe(el));
+
+  // Stagger reveal within same section slightly using inline delay
+  document.querySelectorAll('section').forEach(sec=>{
+    const items = sec.querySelectorAll('.reveal');
+    items.forEach((el,i)=>{ el.style.transitionDelay = (i*0.06)+'s'; });
+  });
+</script>
+
+</body>
+</html>
